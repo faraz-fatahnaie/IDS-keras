@@ -1,4 +1,7 @@
 dataset/NSL_KDD/*
 dataset/UNSW_NB15/*
+!dataset/NSL_KDD/README.md
+!dataset/UNSW_NB15/README.md
+
 **/__pycache__/
 .idea/*
