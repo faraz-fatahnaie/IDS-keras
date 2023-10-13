@@ -14,6 +14,10 @@ class EQLv2(tf.keras.losses.Loss):
                  alpha=4.0,
                  vis_grad=False, **kwargs):
 
+        self.pred_class_logits = None
+        self.gt_classes = None
+        self.n_c = None
+        self.n_i = None
         self.use_sigmoid = True
         self.reduction = reduction
         self.loss_weight = loss_weight
@@ -39,7 +43,7 @@ class EQLv2(tf.keras.losses.Loss):
         super(EQLv2, self).__init__(**kwargs)
 
     def call(self, y_true, y_pred):
-        target, cls_score = y_true, y_pred
+        target, cls_score = tf.cast(y_true, dtype=tf.float32), tf.cast(y_pred, dtype=tf.float32)
         self.n_i, self.n_c = cls_score.shape[0], cls_score.shape[1]  # none 10
         self.gt_classes = target
         self.pred_class_logits = cls_score
