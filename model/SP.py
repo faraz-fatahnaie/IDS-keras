@@ -1,5 +1,7 @@
 import tensorflow as tf
 from keras import layers, models
+from keras import regularizers
+from keras.layers import MaxPooling2D, BatchNormalization, Attention
 
 
 class SPConv2D(tf.keras.layers.Layer):
@@ -183,25 +185,28 @@ class SP(tf.keras.Model):
                     alpha=0.8
                 ),
                 tf.keras.layers.ReLU(),
-                SPConv2D(
-                    in_channels=16,
-                    out_channels=32,
-                    stride=1,
-                    alpha=0.8
-                ),
-                tf.keras.layers.ReLU(),
+                # SPConv2D(
+                #     in_channels=16,
+                #     out_channels=32,
+                #     stride=1,
+                #     alpha=0.8
+                # ),
+                # tf.keras.layers.ReLU(),
                 tf.keras.layers.Flatten(data_format='channels_last')
             ])
-            self.fc = tf.keras.layers.Dense(units=self.n_classes)
+            self.fc = tf.keras.layers.Dense(units=self.n_classes,
+                                            kernel_regularizer=regularizers.L1L2(l1=1e-5, l2=1e-4),
+                                            bias_regularizer=regularizers.L2(1e-4),
+                                            activity_regularizer=regularizers.L2(1e-5))
 
     def call(self, x):
         x = self._model(x)
         x = self.fc(x)
-
+        x = tf.keras.activations.sigmoid(x)
         return x
 
-    def build_graph(self, raw_shape):
-        x = tf.keras.Input(shape=raw_shape)
+    def build_graph(self, input_shape):
+        x = tf.keras.Input(shape=input_shape)
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
 
 
